@@ -1,7 +1,10 @@
-from PyQt5.QtWidgets import QPushButton, QLineEdit, QApplication, QMainWindow
-from PyQt5 import uic
+import os
+import sys
 import tkfilebrowser
-import sys, os
+from PyQt5 import uic
+from PyQt5.QtWidgets import QPushButton, QLineEdit, QApplication, QMainWindow, QFileDialog
+
+
 class Window(QMainWindow):
 
     current_dir = ''
@@ -17,8 +20,8 @@ class Window(QMainWindow):
 
     def button_images_browse_(self):
         input_pictures = self.input_images
-        input_pictures.setText('lorem ipsum')
-        #tkfilebrowser.askopendirname()
+        dirname = QFileDialog.getExistingDirectory()
+        input_pictures.setText(dirname)
 
 
 if __name__ == '__main__':
