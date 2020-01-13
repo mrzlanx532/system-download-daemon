@@ -1,7 +1,6 @@
 import os
 import sys
 import time
-import tkfilebrowser
 from PyQt5 import uic
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QApplication, QMainWindow, QFileDialog, QProgressBar
 
