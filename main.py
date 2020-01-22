@@ -1,18 +1,26 @@
-import os
 import sys
-import time
-import tkfilebrowser
+import os
+
 from PyQt5 import uic
-from PyQt5.QtWidgets import QPushButton, QLineEdit, QApplication, QMainWindow, QFileDialog, QProgressBar
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QSystemTrayIcon, QStyle, QAction, QMenu
+from PyQt5.QtGui import QIcon
+from helpers.alert import Alert
+from helpers.validator import Validator
+from helpers.tray import Tray
 
 
 class Window(QMainWindow):
 
-    current_dir = ''
-
     def __init__(self):
+
         super(Window, self).__init__()
-        uic.loadUi('ui/interface.ui', self)
+        uic.loadUi('ui/main.ui', self)
+
+        self.SC_alert = Alert(self.MainWidget)
+        self.SC_tray_icon = Tray(self.MainWidget)
+
+        #self.setWindowIcon(QIcon(os.path.join(self.current_directory, 'tray.png')))
+
 
         button_images_browse = self.button_images_browse
         button_images_browse.clicked.connect(self.button_images_browse_handler)
@@ -24,8 +32,10 @@ class Window(QMainWindow):
         button_other_files_browse.clicked.connect(self.button_other_files_browse_handler)
 
         button_save_settings = self.button_save_settings
-        if button_save_settings.isEnabled():
-            button_save_settings.clicked.connect(self.button_save_settings_handler)
+        button_save_settings.clicked.connect(self.button_save_settings_handler)
+
+        button_start_daemon = self.button_start_daemon
+        button_start_daemon.clicked.connect(self.button_start_daemon_handler)
 
         self.show()
 
@@ -45,22 +55,27 @@ class Window(QMainWindow):
         input_other_files.setText(dirname)
 
     def button_save_settings_handler(self):
-        progressBar = self.progressBar
 
         button_save_settings = self.button_save_settings
-
-        #print(button_save_settings.isEnabled())
-
         button_save_settings.setEnabled(False)
 
-        if progressBar.value() == 0 or progressBar.value() == 100:
-            i = 0
-            while i != 101:
-                progressBar.setValue(i)
-                time.sleep(0.01)
-                i = i + 1
+        if not Validator.check_path_from_text([self.input_images, self.input_pdf, self.input_other_files]):
+            self.SC_alert.show_warning('Поля не заполнены', 'Пожалуйста, заполните корректно поля')
 
         button_save_settings.setEnabled(True)
+
+    def button_start_daemon_handler(self):
+
+        button_start_daemon = self.button_start_daemon
+        button_start_daemon.setEnabled(False)
+
+
+        self.SC_tray_icon.show()
+        self.hide()
+        #self.SC_alert.show_info("Уведомление", "Приложение продолжает работать в свернутом режиме")
+        #self.close()
+        #self.hide()
+
 
 
 
