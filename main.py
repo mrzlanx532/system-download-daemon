@@ -7,6 +7,8 @@ from PyQt5.QtGui import QIcon
 from helpers.alert import Alert
 from helpers.validator import Validator
 from helpers.tray import Tray
+from helpers.common import Common
+import json
 
 
 class Window(QMainWindow):
@@ -17,10 +19,9 @@ class Window(QMainWindow):
         uic.loadUi('ui/main.ui', self)
 
         self.SC_alert = Alert(self.MainWidget)
-        self.SC_tray_icon = Tray(self.MainWidget)
+        self.SC_tray_icon = Tray(self)
 
-        #self.setWindowIcon(QIcon(os.path.join(self.current_directory, 'tray.png')))
-
+        self.setWindowIcon(QIcon(os.path.join(Common.current_directory(), 'icon.png')))
 
         button_images_browse = self.button_images_browse
         button_images_browse.clicked.connect(self.button_images_browse_handler)
@@ -57,26 +58,16 @@ class Window(QMainWindow):
     def button_save_settings_handler(self):
 
         button_save_settings = self.button_save_settings
-        button_save_settings.setEnabled(False)
-
-        if not Validator.check_path_from_text([self.input_images, self.input_pdf, self.input_other_files]):
-            self.SC_alert.show_warning('Поля не заполнены', 'Пожалуйста, заполните корректно поля')
-
-        button_save_settings.setEnabled(True)
+        self.SC_alert.show_info("Уведомление", "Путь сохранен!")
 
     def button_start_daemon_handler(self):
 
-        button_start_daemon = self.button_start_daemon
-        button_start_daemon.setEnabled(False)
-
-
-        self.SC_tray_icon.show()
-        self.hide()
-        #self.SC_alert.show_info("Уведомление", "Приложение продолжает работать в свернутом режиме")
-        #self.close()
-        #self.hide()
-
-
+        if not Validator.check_path_from_text([self.input_images, self.input_pdf, self.input_other_files]):
+            self.SC_alert.show_warning('Поля не заполнены', 'Пожалуйста, заполните корректно поля')
+        else:
+            self.SC_tray_icon.show()
+            self.hide()
+            self.SC_alert.show_info("Уведомление", "Приложение продолжает работать в свернутом режиме")
 
 
 if __name__ == '__main__':
