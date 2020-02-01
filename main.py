@@ -2,7 +2,7 @@ import sys
 import os
 import time
 from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QSystemTrayIcon, QStyle, QAction, QMenu
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLineEdit, QSystemTrayIcon, QStyle, QAction, QMenu
 from PyQt5.QtGui import QIcon
 from helpers.alert import Alert
 from helpers.validator import Validator
@@ -26,6 +26,9 @@ class Window(QMainWindow):
         button_images_browse = self.button_images_browse
         button_images_browse.clicked.connect(self.button_images_browse_handler)
 
+        button_downloads_browse = self.button_downloads_browse
+        button_downloads_browse.clicked.connect(self.button_downloads_browse_handler)
+
         button_pdf_browse = self.button_pdf_browse
         button_pdf_browse.clicked.connect(self.button_pdf_browse_handler)
 
@@ -38,7 +41,23 @@ class Window(QMainWindow):
         button_start_daemon = self.button_start_daemon
         button_start_daemon.clicked.connect(self.button_start_daemon_handler)
 
+        try:
+            file = open(os.path.join(Common.current_directory(), 'paths.json'), 'r')
+            content = json.loads(file.read())
+            if content:
+                self.input_downloads.setText(content.get('downloads'))
+                self.input_pdf.setText(content.get('pdf_files'))
+                self.input_images.setText(content.get('images_files'))
+                self.input_other_files.setText(content.get('other_files'))
+        except FileNotFoundError:
+            pass
+
         self.show()
+
+    def button_downloads_browse_handler(self):
+        dirname = QFileDialog.getExistingDirectory()
+        input_downloads = self.input_downloads
+        input_downloads.setText(dirname)
 
     def button_images_browse_handler(self):
         dirname = QFileDialog.getExistingDirectory()
@@ -58,6 +77,20 @@ class Window(QMainWindow):
     def button_save_settings_handler(self):
 
         button_save_settings = self.button_save_settings
+
+        paths = {
+            "downloads": self.input_downloads.text(),
+            "pdf_files": self.input_pdf.text(),
+            "images_files": self.input_images.text(),
+            "other_files": self.input_other_files.text()
+        }
+
+        paths = json.dumps(paths)
+
+        file = open(os.path.join(Common.current_directory(), 'paths.json'), 'w+')
+        file.write(paths)
+        file.close()
+
         self.SC_alert.show_info("Уведомление", "Путь сохранен!")
 
     def button_start_daemon_handler(self):
